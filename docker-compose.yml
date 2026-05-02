@@ -1,0 +1,26 @@
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.db
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: task_db
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+
+  app:
+    build: .
+    container_name: node_api
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: root_password
+      DB_NAME: task_db
+      JWT_SECRET: umaia_secret_2024
