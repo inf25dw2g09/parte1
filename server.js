@@ -70,6 +70,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 /**
  * @openapi
+/**
+ * @openapi
  * /login:
  *   post:
  *     summary: Login do utilizador
@@ -82,8 +84,22 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *             properties:
  *               email:
  *                 type: string
+ *                 example: igor1@email.com
  *               password:
  *                 type: string
+ *                 example: 123
+ *     responses:
+ *       200:
+ *         description: Login bem-sucedido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Credenciais inválidas
  */
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -120,6 +136,28 @@ app.post('/login', (req, res) => {
  *     summary: Listar tarefas do utilizador
  *     security:
  *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de tarefas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   title:
+ *                     type: string
+ *                   description:
+ *                     type: string
+ *                   status:
+ *                     type: string
+ *                   user_id:
+ *                     type: integer
+ *       401:
+ *         description: Não autorizado
  */
 app.get('/tasks', auth, (req, res) => {
     db.query(
@@ -142,6 +180,36 @@ app.get('/tasks', auth, (req, res) => {
  *     summary: Criar nova tarefa
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: Estudar Docker
+ *               description:
+ *                 type: string
+ *                 example: Aprender containers
+ *               status:
+ *                 type: string
+ *                 example: pendente
+ *     responses:
+ *       201:
+ *         description: Tarefa criada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 title:
+ *                   type: string
+ *       401:
+ *         description: Não autorizado
  */
 app.post('/tasks', auth, (req, res) => {
     const { title, description, status } = req.body;
