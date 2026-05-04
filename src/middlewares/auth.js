@@ -2,14 +2,27 @@ const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    
+    // Verifica se o header existe e se começa com "Bearer "
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Token não fornecido ou formato inválido' });
+    }
 
-    if (!token) return res.status(401).json({ message: 'Token não fornecido' });
+    const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ message: 'Token inválido' });
+    // Fallback para o JWT_SECRET para evitar que a API rebente se o .env falhar
+    const secret = process.env.JWT_SECRET || 'umaia_secret_2024';
+
+    jwt.verify(token, secret, (err, user) => {
+        if (err) {
+            console.error("❌ Erro na verificação do token:", err.message);
+            return res.status(403).json({ message: 'Token inválido ou expirado' });
+        }
+
+        // Injeta os dados do utilizador na requisição para uso nos controllers
         req.user = user;
-        console.log(`Utilizador autenticado: ${user.name} (ID: ${user.id})`);
+        
+        console.log(`🔐 Acesso autorizado: ${user.name} (ID: ${user.id})`);
         next();
     });
 };
