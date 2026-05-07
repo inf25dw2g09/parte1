@@ -65,3 +65,11 @@ No OAuth2, existem diferentes authorization flows, como:
 
 Esses flows são utilizados principalmente quando aplicações precisam de autenticação delegada entre diferentes serviços ou plataformas externas.
 Neste projeto foi utilizada uma abordagem mais simples baseada em JWT, adequada para APIs REST pequenas e médias, onde  a própria aplicação é responsável pela autenticação dos utilizadores.
+
+## Execução com Docker 
+
+Para iniciar os containers:
+
+```bash
+docker-compose up --build
+```
