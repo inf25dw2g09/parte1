@@ -74,3 +74,10 @@ Para iniciar os containers:
 docker-compose up --build
 ```
 ### A API ficará disponível em:
+```bash
+http://localhost:3000
+```
+### Sagger:
+```bash
+http://localhost:3000/api-docs
+```
