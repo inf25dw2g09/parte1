@@ -103,10 +103,8 @@ http://localhost:3000
 ```bash
 http://localhost:3000/api-docs
 ```
-# 7. Endpoints
+#  Endpoints
 
-```md id="1wz1u7"
-```
 ## Endpoints
 | Método | Endpoint | Descrição |
 |---|---|---|
