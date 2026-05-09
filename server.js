@@ -34,10 +34,6 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-<<<<<<< HEAD
-
-=======
->>>>>>> 63b0a39197cb735f716a604f90cac904cad8c2a3
 app.get('/swagger.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerDocs);
