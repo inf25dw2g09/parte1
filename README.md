@@ -9,7 +9,7 @@ A aplicação permite autenticação de utilizadores através de JWT (JSON Web T
 - Docker
 - Docker Compose
 - JWT (JSON Web Token)
-- Swagger/OpenaAPI
+- Swagger/OpenAPI
 - mysql2
 - dotenv
 
@@ -28,7 +28,7 @@ src/
 
 ---
 # Base de Dados 
-A aplicação utiliza MySQL como sistema de getão de base de dados.
+A aplicação utiliza MySQL como sistema de gestão de base de dados.
 A base de dados é criada automaticamente através do ficheiro `init.sql`, executado pelo container Docker do MySQL durante a inicialização da aplicação.
 
 Foram criadas tabelas para:
@@ -67,10 +67,10 @@ A autorização foi implementada utilizando o `user_id` associado às tarefas. D
 - um utilizador apenas consegue editar as suas tarefas
 - um utilizador apenas consegue apagar as suas tarefas
 
-Isto é garantido através de queries SQL que filtram pelo `user_id` presente no toke JWT.
+Isto é garantido através de queries SQL que filtram pelo `user_id` presente no tokeN JWT.
 
 # Comparação com OAuth2
-A autenticação implementada neste projetp utilizada JWT simples com autenticação local baseada em email e password.
+A autenticação implementada neste projeto utilizada JWT simples com autenticação local baseada em email e password.
 
 Diferentemente do OAuth2, esta solução não utiliza:
 - Authorization Server
@@ -99,7 +99,7 @@ docker-compose up --build
 ```bash
 http://localhost:3000
 ```
-### Sagger:
+### Swagger:
 ```bash
 http://localhost:3000/api-docs
 ```
@@ -113,13 +113,14 @@ http://localhost:3000/api-docs
 | POST | /tasks | Criar tarefa |
 | PUT | /tasks/:id | Atualizar tarefa |
 | DELETE | /tasks/:id | Apagar tarefa |
+| GET | /categories | Listar categorias |
 
 # Segurança
 
 - autenticação JWT
 - middleware de autorização
 - proteção de rotas privadas
-- isolamaneto de tarefas por utilizador
+- isolamento de tarefas por utilizador
 - utilização de variáveis de ambiente com dotenv
 
 # Conclusão
