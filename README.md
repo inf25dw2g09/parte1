@@ -14,34 +14,68 @@ A aplicação permite autenticação de utilizadores através de JWT (JSON Web T
 - dotenv
 
 # Estrutura do Projeto
-
+```text
+task-manager-api/
+db/
+  Dockerfile.db
+  init.sql
 src/
   config/
+    db.js
   controller/
+      authController.js
+      taskController.js
+      categoryController
   middlewares/
+      auth.js
   routes/
-
-- config: configuração de base de dados
-- controllers: lógica das rotas
-- middlewares: autenticação JWT
-- routes: definição dos endpoints
-
+      index.js
+Dockerfile
+docker-compose.yml
+package.json
+server.js
+README.md
+```
+- `config/` -> configuração da ligação MySQL
+- `controllers/` -> lógica das rotas e queries SQL
+- `middlewares/` -> middleware de autenticação JWT
+- `routes/` -> definição dos endpoints da API
+- `db/` -> scripts e configuração da base de dados
 ---
 # Base de Dados 
 A aplicação utiliza MySQL como sistema de gestão de base de dados.
 A base de dados é criada automaticamente através do ficheiro `init.sql`, executado pelo container Docker do MySQL durante a inicialização da aplicação.
 
-Foram criadas tabelas para:
-- utilizadores
-- tarefas
-- categorias
+## Recursos Implementados
+Foram implementados 3 recursos principais:
 
-Cada tarefa possui um campo `user_id`, utilizado para associar tarefas ao respetivo utilizador autenticado.
+- Utilizadores (`users`)
+- Tarefas (`tasks`)
+- Categorias (`categories`)
 
-Exemplo de relação:
+Além disso, foi criada uma tabela intermédia:
+-`task_categories`
 
-- um utilizador pode possuir várias tarefas
-- cada tarefa pertence apenas a um utilizador
+para representar a relação entre tarefas e categorias.
+
+---
+# Relações entre Recursos
+
+## Relação 1:N
+
+Existe uma relação de cardinalidade **1:N** entre:
+
+- `users`
+- `tasks`
+
+Um utilizador pode possuir várias tarefas, enquanto cada tarefa pertence apenas a um utilizador.
+
+Essa relação é implementada através da chave estrangeira:
+
+```sql
+user_id INT,
+FOREIGN KEY (user_id) REFERENCES users(id)
+```
 
 ---
 
@@ -88,6 +122,13 @@ No OAuth2, existem diferentes authorization flows, como:
 Esses flows são utilizados principalmente quando aplicações precisam de autenticação delegada entre diferentes serviços ou plataformas externas.
 Neste projeto foi utilizada uma abordagem mais simples baseada em JWT, adequada para APIs REST pequenas e médias, onde  a própria aplicação é responsável pela autenticação dos utilizadores.
 
+# Docker
+
+A aplicação utiliza uma arquitetura multi-container:
+
+- container Node.js
+- container MySQL
+
 # Execução com Docker 
 
 Para iniciar os containers:
@@ -103,6 +144,10 @@ http://localhost:3000
 ```bash
 http://localhost:3000/api-docs
 ```
+### Swagger JSON
+```text
+http://localhost:3000/swagger.json
+```
 #  Endpoints
 
 ## Endpoints
@@ -117,11 +162,39 @@ http://localhost:3000/api-docs
 
 # Segurança
 
+A aplicação implementa:
+
 - autenticação JWT
 - middleware de autorização
 - proteção de rotas privadas
 - isolamento de tarefas por utilizador
 - utilização de variáveis de ambiente com dotenv
+- verificação de token Bearer
+
+# Documentação da API 
+
+A documentação da API foi implementada utilizando Swagger/OpenAPI 3.0.
+
+As anotações `@openapi` foram inseridas diretamente nos controllers da aplicação, permitindo gerar automaticamente:
+
+- documentação Swagger UI
+- ficheiro `swagger.json`
+---
+
+# Collection Postman
+
+O projeto inclui uma collection do Postman para facilitar os testes da API.
+
+A collection permite testar:
+
+- login
+- autenticação JWT
+- CRUD de tarefas
+- consulta de categorias
+
+A collection pode ser importada diretamente no Postman.
+
+---
 
 # Conclusão
 Este projeto permitiu desenvolver uma API REST completa utilizando Node.js, Express e MySQL, aplicando conceitos de autenticação, autorização e documentação de APIs.
