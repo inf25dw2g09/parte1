@@ -1,5 +1,5 @@
 # Task Manager API 
-Este projeto consiste uma API REST para gestão de tarefas, desenvolvida em Node.js com Express e MySQL.
+Este projeto consiste numa API REST para gestão de tarefas, desenvolvida em Node.js com Express e MySQL.
 A aplicação permite autenticação de utilizadores através de JWT (JSON Web Token) e operações CRUD sobre tarefas, garantindo que cada utilizador apenas pode aceder às suas próprias informações. Para o desenvolvimento da API foi utilizada uma abordagem Code First, onde a implementação do backend e das rotas foi realizada inicialmente em código. Posteriormente, a documentação Swagger/OpenAPI foi gerada automaticamente através de anotações @openapi inseridas nos controllers da aplicação.
 
 # Tecnologias Utilizadas
@@ -22,10 +22,10 @@ db/
 src/
   config/
     db.js
-  controller/
+  controllers/
       authController.js
       taskController.js
-      categoryController
+      categoryController.js
   middlewares/
       auth.js
   routes/
@@ -54,7 +54,7 @@ Foram implementados 3 recursos principais:
 - Categorias (`categories`)
 
 Além disso, foi criada uma tabela intermédia:
--`task_categories`
+- `task_categories`
 
 para representar a relação entre tarefas e categorias.
 
@@ -84,7 +84,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 
 A autenticação da API foi implementada utilizando JWT (JSON Web Token).
 O utilizador realiza login através `/login`, fornecendo email e password. Após validação das credenciais na base de dados, o servidor gera um token JWT assinado com uma chave  secreta (`JWT_SECRET`).
-Esse token é posteriormente enviado pelo cliente no header Authorization utilizando o formato:
+Esse token é posteriormente enviado pelo cliente no header HTTP Authorization utilizando o formato:
 ```text
 Authorization: Bearer <token>
 ```
@@ -101,10 +101,10 @@ A autorização foi implementada utilizando o `user_id` associado às tarefas. D
 - um utilizador apenas consegue editar as suas tarefas
 - um utilizador apenas consegue apagar as suas tarefas
 
-Isto é garantido através de queries SQL que filtram pelo `user_id` presente no tokeN JWT.
+Isto é garantido através de queries SQL que filtram pelo `user_id` presente no token JWT.
 
 # Comparação com OAuth2
-A autenticação implementada neste projeto utilizada JWT simples com autenticação local baseada em email e password.
+A autenticação implementada neste projeto utiliza JWT simples com autenticação local baseada em email e password.
 
 Diferentemente do OAuth2, esta solução não utiliza:
 - Authorization Server
@@ -137,7 +137,7 @@ Para iniciar os containers:
 docker-compose up --build
 ```
 ### A API ficará disponível em:
-```bash
+```text
 http://localhost:3000
 ```
 ### Swagger:
@@ -170,6 +170,12 @@ A aplicação implementa:
 - isolamento de tarefas por utilizador
 - utilização de variáveis de ambiente com dotenv
 - verificação de token Bearer
+
+Além disso, o detalhe do utilizador autenticado é apresentado na consola sempre que um pedido autenticado é recebido:
+
+```text
+Acesso autorizado: Igor Silva (ID: 1)
+```
 
 # Documentação da API 
 
