@@ -1,3 +1,0 @@
-FROM mysql:5.7
-# Como o Dockerfile JÁ ESTÁ na pasta db, o init.sql está ao lado dele
-COPY ./init.sql /docker-entrypoint-initdb.d/

@@ -6,6 +6,7 @@ const db = require('../config/db');
  * /tasks:
  *   get:
  *     summary: Listar tarefas do utilizador
+ *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -50,6 +51,7 @@ exports.getTasks = (req, res) => {
  * /tasks:
  *   post:
  *     summary: Criar nova tarefa
+ *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -112,6 +114,7 @@ exports.createTask = (req, res) => {
  * /tasks/{id}:
  *   put:
  *     summary: Atualizar tarefa
+ *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -187,6 +190,7 @@ exports.updateTask = (req, res) => {
  * /tasks/{id}:
  *   delete:
  *     summary: Apagar tarefa
+ *     tags: [Tasks]
  *     security:
  *       - bearerAuth: []
  *     parameters:

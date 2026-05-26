@@ -1,8 +1,6 @@
 services:
   db:
-    build:
-      context: ./db
-      dockerfile: Dockerfile.db
+    image: mysql:5.7
     container_name: mysql_db
     restart: always
     environment:
@@ -12,10 +10,15 @@ services:
       - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   app:
-    build: .
+    image: node:18
     container_name: node_api
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: sh -c "npm install && node server.js"
     ports:
       - "3000:3000"
     depends_on:

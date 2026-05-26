@@ -5,7 +5,10 @@ module.exports = (req, res, next) => {
     
     // Verifica se o header existe e se começa com "Bearer "
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Token não fornecido ou formato inválido' });
+        return res.status(401).json({
+            error: 'Unauthorized',
+            error_description: 'Token não fornecido ou formato inválido' 
+        });
     }
 
     const token = authHeader.split(' ')[1];
@@ -16,7 +19,10 @@ module.exports = (req, res, next) => {
     jwt.verify(token, secret, (err, user) => {
         if (err) {
             console.error("❌ Erro na verificação do token:", err.message);
-            return res.status(403).json({ message: 'Token inválido ou expirado' });
+            return res.status(403).json({ 
+                error: 'invalid_token',
+                error_description: 'Token inválido ou expirado' 
+            });
         }
 
         // Injeta os dados do utilizador na requisição para uso nos controllers
