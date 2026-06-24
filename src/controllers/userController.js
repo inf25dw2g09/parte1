@@ -1,8 +1,9 @@
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
 
 /**
  * @openapi
- * /users:
+ * /users/me:
  *   get:
  *     summary: Obter o meu perfil
  *     tags: [Users]
@@ -11,11 +12,14 @@ const db = require('../config/db');
  *     responses:
  *       200:
  *         description: Dados do utilizador autenticado
+ *      404:
+ *        description: Utilizador não encontrado
  */
-exports.getUsers = (req, res) => {
+exports.getMe = (req, res) => {
     db.query('SELECT id, name, email FROM users WHERE id = ?', [req.user.id], (err, results) => {
         if (err) return res.status(500).json({ error: 'Erro ao procurar utilizador' });
-        res.json(results);
+        if (results.length === 0) return res.status(404).json({ message: 'Utilizador não encontrado' });
+        res.json(results[0] || {});
     });
 };
 
@@ -56,13 +60,7 @@ exports.getUserById = (req, res) => {
 
         db.query('SELECT id, title, description, status FROM tasks WHERE user_id = ?', [id], (err2, taskResults) => {
             if (err2) return res.status(500).json({ error: 'Erro ao procurar tarefas' });
-
-            res.json({
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                tasks: taskResults
-            });
+            res.json({ id: user.id, name: user.name, email: user.email, tasks: taskResults });
         });
     });
 };
@@ -119,61 +117,9 @@ exports.getUserTasks = (req, res) => {
 
 /**
  * @openapi
- * /users:
- *   post:
- *     summary: Criar novo utilizador
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email, password]
- *             properties:
- *               name:
- *                 type: string
- *                 example: Novo Utilizador
- *               email:
- *                 type: string
- *                 example: novo@email.com
- *               password:
- *                 type: string
- *                 example: "123"
- *     responses:
- *       201:
- *         description: Utilizador criado
- *       409:
- *         description: Email já existe
- */
-exports.createUser = (req, res) => {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-        return res.status(400).json({ message: 'name, email e password são obrigatórios' });
-    }
-
-    db.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-        [name, email, password],
-        (err, results) => {
-            if (err) {
-                if (err.code === 'ER_DUP_ENTRY') {
-                    return res.status(409).json({ message: 'Email já está em uso' });
-                }
-                return res.status(500).json({ error: 'Erro ao criar utilizador' });
-            }
-            res.status(201).json({ id: results.insertId, name, email });
-        }
-    );
-};
-
-/**
- * @openapi
  * /users/{id}:
  *   put:
- *     summary: Atualizar utilizador
+ *     summary: Atualizar utilizador (só o próprio)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -216,21 +162,18 @@ exports.updateUser = (req, res) => {
         return res.status(400).json({ message: 'name e email são obrigatórios' });
     }
 
-    db.query('UPDATE users SET name = ?, email = ? WHERE id = ?',
-        [name, email, id],
-        (err, results) => {
-            if (err) return res.status(500).json({ error: 'Erro ao atualizar utilizador' });
-            if (results.affectedRows === 0) return res.status(404).json({ message: 'Utilizador não encontrado' });
-            res.json({ id, name, email });
-        }
-    );
+    db.query('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, id], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Erro ao atualizar utilizador' });
+        if (results.affectedRows === 0) return res.status(404).json({ message: 'Utilizador não encontrado' });
+        res.json({ id, name, email });
+    });
 };
 
 /**
  * @openapi
  * /users/{id}:
  *   delete:
- *     summary: Apagar utilizador
+ *     summary: Apagar utilizador (só o próprio)
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []

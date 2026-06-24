@@ -32,21 +32,36 @@ CREATE TABLE task_categories (
 
 -- 2. Inserção de Utilizadores 
 INSERT INTO users (name, email, password) VALUES
-('Igor Silva', 'igor1@email.com', '123'), ('Ana Costa', 'ana@email.com', '123'),
-('João Pedro', 'joao@email.com', '123'), ('Maria Lopes', 'maria@email.com', '123'),
-('Carlos Dias', 'carlos@email.com', '123'), ('Sofia Mendes', 'sofia@email.com', '123'),
-('Pedro Rocha', 'pedro@email.com', '123'), ('Inês Martins', 'ines@email.com', '123'),
-('Rui Santos', 'rui@email.com', '123'), ('Beatriz Alves', 'bia@email.com', '123'),
-('Tiago Sousa', 'tiago@email.com', '123'), ('Marta Pinto', 'marta@email.com', '123'),
-('André Gomes', 'andre@email.com', '123'), ('Daniela Cruz', 'daniela@email.com', '123'),
-('Bruno Ferreira', 'bruno@email.com', '123'), ('Carla Neves', 'carla@email.com', '123'),
-('Fábio Teixeira', 'fabio@email.com', '123'), ('Patrícia Reis', 'patricia@email.com', '123'),
-('Ricardo Melo', 'ricardo@email.com', '123'), ('Cláudia Barros', 'claudia@email.com', '123'),
-('Hugo Correia', 'hugo@email.com', '123'), ('Vanessa Ribeiro', 'vanessa@email.com', '123'),
-('Miguel Castro', 'miguel@email.com', '123'), ('Sara Antunes', 'sara@email.com', '123'),
-('Luís Pires', 'luis@email.com', '123'), ('Helena Duarte', 'helena@email.com', '123'),
-('Nuno Faria', 'nuno@email.com', '123'), ('Diana Carvalho', 'diana@email.com', '123'),
-('Paulo Azevedo', 'paulo@email.com', '123'), ('Raquel Fonseca', 'raquel@email.com', '123');
+('Igor Silva', 'igor1@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Ana Costa', 'ana@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('João Pedro', 'joao@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Maria Lopes', 'maria@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Carlos Dias', 'carlos@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Sofia Mendes', 'sofia@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Pedro Rocha', 'pedro@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Inês Martins', 'ines@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Rui Santos', 'rui@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Beatriz Alves', 'bia@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Tiago Sousa', 'tiago@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Marta Pinto', 'marta@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('André Gomes', 'andre@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Daniela Cruz', 'daniela@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Bruno Ferreira', 'bruno@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Carla Neves', 'carla@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Fábio Teixeira', 'fabio@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Patrícia Reis', 'patricia@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Ricardo Melo', 'ricardo@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Cláudia Barros', 'claudia@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Hugo Correia', 'hugo@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Vanessa Ribeiro', 'vanessa@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Miguel Castro', 'miguel@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Sara Antunes', 'sara@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Luís Pires', 'luis@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Helena Duarte', 'helena@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Nuno Faria', 'nuno@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Diana Carvalho', 'diana@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Paulo Azevedo', 'paulo@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Raquel Fonseca', 'raquel@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
 
 -- 3. Inserção de Categorias 
 INSERT INTO categories (name) VALUES
@@ -73,4 +88,4 @@ INSERT INTO tasks (title, description, status, user_id) VALUES
 
 -- 5. Inserção de Relações Tarefa-Categoria
 INSERT INTO task_categories (task_id, category_id) VALUES
-(1,5),(1,1),(2,2),(2,5),(3,7),(4,6),(5,8),(6,1),(6,5),(7,6),(8,1),(9,5),(10,7),(11,1),(12,2),(13,2),(14,5),(15,5),(16,6),(17,9),(18,5),(19,5),(20,5),(21,2),(22,5),(23,5),(24,1),(25,5),(26,5),(27,5),(28,5),(29,5),(30,2);
+(1,5),(1,1),(2,2),(2,5),(3,7),(4,6),(5,8),(6,1),(6,5),(7,6),(8,1),(9,5),(10,7),(11,1),(12,2),(13,2),(14,5),(15,5),(16,6),(17,9),(18,5),(19,5),(20,5),(21,2),(22,5),(23,5),(24,1),(25,5),(26,5),(27,5),(28,5),(29,5);
