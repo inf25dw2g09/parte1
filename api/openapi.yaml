@@ -1,0 +1,405 @@
+openapi: "3.0.0"
+info:
+  title: Task API
+  version: "1.0.0"
+  description: API de Gestão de Tarefas para o projeto da UMAIA
+servers:
+- url: "http://localhost:3000"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  "/register":
+    post:
+      summary: Registar novo utilizador (rota pública)
+      tags:
+- OAuth2
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              required:
+- name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: Novo Utilizador
+                email:
+                  type: string
+                  example: novo@email.com
+                password:
+                  type: string
+                  example: "123"
+      responses:
+        "201":
+          description: Utilizador criado com sucesso
+        "409":
+          description: Email já em uso
+  "/oauth/token":
+    post:
+      summary: Emitir token de acesso (OAuth2 - Resource Owner Password Credentials Flow)
+      tags:
+- OAuth2
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              required:
+- grant_type
+                - username
+                - password
+                - client_id
+                - client_secret
+              properties:
+                grant_type:
+                  type: string
+                  example: password
+                username:
+                  type: string
+                  example: igor1@email.com
+                password:
+                  type: string
+                  example: "123"
+                client_id:
+                  type: string
+                  example: task-manager-app
+                client_secret:
+                  type: string
+                  example: umaia_super_secret_password
+                scope:
+                  type: string
+                  example: read write
+      responses:
+        "200":
+          description: Token emitido com sucesso no formato OAuth2
+        "400":
+          description: Parâmetros inválidos
+        "401":
+          description: Credenciais inválidas
+  "/categories":
+    get:
+      summary: Listar todas as categorias
+      tags:
+- Categories
+      security:
+- bearerAuth: []
+      responses:
+        "200":
+          description: Lista de categorias
+    post:
+      summary: Criar nova categoria
+      tags:
+- Categories
+      security:
+- bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              required:
+- name
+              properties:
+                name:
+                  type: string
+                  example: Finanças
+      responses:
+        "201":
+          description: Categoria criada
+  "/categories/{id}":
+    get:
+      summary: Obter categoria por ID
+      tags:
+- Categories
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      responses:
+        "200":
+          description: Categoria encontrada
+        "404":
+          description: Categoria não encontrada
+    put:
+      summary: Atualizar categoria
+      tags:
+- Categories
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Nome Atualizado
+      responses:
+        "200":
+          description: Categoria atualizada
+        "404":
+          description: Categoria não encontrada
+    delete:
+      summary: Apagar categoria
+      tags:
+- Categories
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      responses:
+        "200":
+          description: Categoria apagada
+        "404":
+          description: Categoria não encontrada
+  "/tasks":
+    get:
+      summary: Listar tarefas do utilizador
+      tags:
+- Tasks
+      security:
+- bearerAuth: []
+      responses:
+        "200":
+          description: Lista de tarefas
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    status:
+                      type: string
+                    user_id:
+                      type: integer
+        "401":
+          description: Não autorizado
+    post:
+      summary: Criar nova tarefa
+      tags:
+- Tasks
+      security:
+- bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Estudar Docker
+                description:
+                  type: string
+                  example: Aprender containers
+                status:
+                  type: string
+                  example: pendente
+      responses:
+        "201":
+          description: Tarefa criada
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+        "401":
+          description: Não autorizado
+  "/tasks/{id}":
+    put:
+      summary: Atualizar tarefa
+      tags:
+- Tasks
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          schema:
+          type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Estudar Docker
+                description:
+                  type: string
+                  example: Aprender containers
+                status:
+                  type: string
+                  example: pendente
+      responses:
+        "200":
+          description: Tarefa atualizada
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+        "404":
+          description: Tarefa não encontrada
+    delete:
+      summary: Apagar tarefa
+      tags:
+- Tasks
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          schema:
+          type: integer
+          required: true
+          description: ID da tarefa a apagar
+      responses:
+        "200":
+          description: Tarefa apagada
+          content:
+            "application/json":
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "404":
+          description: Tarefa não encontrada
+  "/users/{id}":
+    get:
+      summary: "Obter utilizador com as suas tarefas (relação 1:N)"
+      tags:
+- Users
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      responses:
+        "200":
+          description: Utilizador com lista de tarefas
+        "403":
+          description: Sem permissão
+        "404":
+          description: Utilizador não encontrado
+    put:
+      summary: Atualizar utilizador (só o próprio)
+      tags:
+- Users
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Nome Atualizado
+                email:
+                  type: string
+                  example: atualizado@email.com
+      responses:
+        "200":
+          description: Utilizador atualizado
+        "403":
+          description: Sem permissão
+        "404":
+          description: Utilizador não encontrado
+    delete:
+      summary: Apagar utilizador (só o próprio)
+      tags:
+- Users
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      responses:
+        "200":
+          description: Utilizador apagado
+        "403":
+          description: Sem permissão
+        "404":
+          description: Utilizador não encontrado
+  "/users/{id}/tasks":
+    get:
+      summary: "Listar tarefas de um utilizador específico (relação 1:N)"
+      tags:
+- Users
+      security:
+- bearerAuth: []
+      parameters:
+- in: path
+          name: id
+          required: true
+          schema:
+          type: integer
+      responses:
+        "200":
+          description: Lista de tarefas do utilizador com categorias
+        "403":
+          description: Sem permissão
+        "404":
+          description: Utilizador não encontrado
+tags: []
