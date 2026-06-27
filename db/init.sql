@@ -30,7 +30,7 @@ CREATE TABLE task_categories (
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 
--- 2. Inserção de Utilizadores 
+-- 2. Inserção de Utilizadores (Importante: As passwords de todos os utilizadores para teste é "123")
 INSERT INTO users (name, email, password) VALUES
 ('Igor Silva', 'igor1@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
 ('Ana Costa', 'ana@email.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
