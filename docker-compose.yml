@@ -11,24 +11,27 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   app:
-    image: node:18
+    build: .
     container_name: node_api
-    working_dir: /usr/src/app
-    volumes:
-      - .:/usr/src/app
-    command: sh -c "npm install && node server.js"
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: root_password
       DB_NAME: task_db
       JWT_SECRET: umaia_secret_2024
+    restart: unless-stopped
 
 volumes:
   db_data:
