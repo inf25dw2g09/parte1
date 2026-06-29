@@ -1,72 +1,86 @@
-# Task Manager API 
+# Task Manager API
+
 Este projeto consiste numa API REST para gestão de tarefas, desenvolvida em Node.js com Express e MySQL.
-A aplicação permite autenticação de utilizadores através de JWT (JSON Web Token) e operações CRUD sobre tarefas, garantindo que cada utilizador apenas pode aceder às suas próprias informações. Para o desenvolvimento da API foi utilizada uma abordagem Code First, onde a implementação do backend e das rotas foi realizada inicialmente em código. Posteriormente, a documentação Swagger/OpenAPI foi gerada automaticamente através de anotações @openapi inseridas nos controllers da aplicação.
+A aplicação permite autenticação de utilizadores através do fluxo OAuth2 Resource Owner Password Credentials, emitindo tokens de acesso no formato JWT (JSON Web Token), e operações CRUD sobre tarefas, garantindo que cada utilizador apenas pode aceder às suas próprias informações. Para o desenvolvimento da API foi utilizada uma abordagem Code First, onde a implementação do backend e das rotas foi realizada inicialmente em código. Posteriormente, a documentação Swagger/OpenAPI foi gerada automaticamente através de anotações `@openapi` inseridas nos controllers da aplicação.
+
+---
 
 # Tecnologias Utilizadas
+
 - Node.js
 - Express.js
-- MySQL
-- Docker
-- Docker Compose
-- JWT (JSON Web Token)
-- Swagger/OpenAPI
+- MySQL 5.7
+- Docker / Docker Compose
+- OAuth2 (Resource Owner Password Credentials Flow)
+- JWT (JSON Web Token) — biblioteca `jsonwebtoken`
+- Bcrypt — biblioteca `bcryptjs`
+- Swagger / OpenAPI 3.0 — bibliotecas `swagger-jsdoc` e `swagger-ui-express`
 - mysql2
 - dotenv
+- cors
+
+---
 
 # Estrutura do Projeto
+
 ```text
 task-manager-api/
-db/
-  Dockerfile.db
-  init.sql
-src/
-  config/
-    db.js
-  controllers/
-      authController.js
-      taskController.js
-      categoryController.js
-  middlewares/
-      auth.js
-  routes/
-      index.js
-Dockerfile
-docker-compose.yml
-package.json
-server.js
-README.md
+├── api/
+│   └── openapi.yaml
+├── db/
+│   └── init.sql
+├── src/
+│   ├── config/
+│   │   └── db.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── taskController.js
+│   │   ├── categoryController.js
+│   │   └── userController.js
+│   ├── middlewares/
+│   │   └── auth.js
+│   └── routes/
+│       └── index.js
+├── .dockerignore
+├── .env.example
+├── Dockerfile
+├── docker-compose.yml
+├── package.json
+├── server.js
+└── README.md
 ```
-- `config/` -> configuração da ligação MySQL
-- `controllers/` -> lógica das rotas e queries SQL
-- `middlewares/` -> middleware de autenticação JWT
-- `routes/` -> definição dos endpoints da API
-- `db/` -> scripts e configuração da base de dados
+
+- `api/` → ficheiro OpenAPI estático para documentação e importação no Postman
+- `config/` → configuração da ligação ao MySQL
+- `controllers/` → lógica das rotas e queries SQL
+- `middlewares/` → middleware de autenticação OAuth2/JWT
+- `routes/` → definição dos endpoints da API
+- `db/` → script de inicialização da base de dados
+
 ---
-# Base de Dados 
+
+# Base de Dados
+
 A aplicação utiliza MySQL como sistema de gestão de base de dados.
-A base de dados é criada automaticamente através do ficheiro `init.sql`, executado pelo container Docker do MySQL durante a inicialização da aplicação.
+A base de dados é criada automaticamente através do ficheiro `init.sql`, executado pelo container Docker do MySQL durante a inicialização.
 
 ## Recursos Implementados
+
 Foram implementados 3 recursos principais:
 
 - Utilizadores (`users`)
 - Tarefas (`tasks`)
 - Categorias (`categories`)
 
-Além disso, foi criada uma tabela intermédia:
-- `task_categories`
-
-para representar a relação entre tarefas e categorias.
+Foi também criada uma tabela intermédia `task_categories` para representar a relação entre tarefas e categorias.
 
 ---
+
 # Relações entre Recursos
 
 ## Relação 1:N
 
-Existe uma relação de cardinalidade **1:N** entre:
-
-- `users`
-- `tasks`
+Existe uma relação de cardinalidade **1:N** entre `users` e `tasks`.
 
 Um utilizador pode possuir várias tarefas, enquanto cada tarefa pertence apenas a um utilizador.
 
@@ -77,115 +91,175 @@ user_id INT,
 FOREIGN KEY (user_id) REFERENCES users(id)
 ```
 
----
+Esta relação é visível no endpoint `GET /users/{id}`, que devolve o utilizador com a lista completa das suas tarefas, e no endpoint `GET /users/{id}/tasks`, que devolve as tarefas com as categorias associadas.
 
+---
 
 # Autenticação e Autorização
 
-A autenticação da API foi implementada utilizando JWT (JSON Web Token).
-O utilizador realiza login através `/login`, fornecendo email e password. Após validação das credenciais na base de dados, o servidor gera um token JWT assinado com uma chave  secreta (`JWT_SECRET`).
-Esse token é posteriormente enviado pelo cliente no header HTTP Authorization utilizando o formato:
-```text
+## JWT — JSON Web Token
+
+O projeto utiliza **JWT** como formato do token de acesso. Após validação das credenciais, o servidor gera um token assinado com a biblioteca `jsonwebtoken`:
+
+```js
+const access_token = jwt.sign(
+    { id: user.id, name: user.name, client_id, scope: grantedScope },
+    process.env.JWT_SECRET,
+    { expiresIn: 3600 }
+);
+```
+
+O token contém o `id`, `name`, `client_id` e `scope` do utilizador. É assinado com uma chave secreta (`JWT_SECRET`) e expira ao fim de 3600 segundos (1 hora).
+
+## OAuth2 — Resource Owner Password Credentials Flow
+
+A autenticação segue o fluxo OAuth2 ROPC. O utilizador obtém um token através do endpoint `/oauth/token`, enviando:
+
+- `grant_type` → `password`
+- `username` → email do utilizador
+- `password`
+- `client_id`
+- `client_secret`
+- `scope` → por omissão `read write`
+
+O servidor valida primeiro a aplicação cliente (`client_id` e `client_secret`) e depois as credenciais do utilizador, comparando a password com o hash guardado na base de dados através do `bcryptjs`. Em caso de sucesso, é devolvida uma resposta no formato OAuth2:
+
+```json
+{
+  "access_token": "<token JWT>",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "read write"
+}
+```
+
+O token é enviado pelo cliente no header HTTP:
+
+```
 Authorization: Bearer <token>
 ```
 
-O middleware de autenticação verifica:
-- existência do token
-- validade da assinatura
-- expiração do token
+O middleware de autenticação (`auth.js`) verifica a existência, assinatura e expiração do token. Após validação, os dados do utilizador são injetados em `req.user`, permitindo controlar o acesso aos recursos.
 
-Após validação, os dados do utilizador são inseridos em `req.user`, permitindo controlar  o acesso aos recursos.
+## Autorização por utilizador 
 
-A autorização foi implementada utilizando o `user_id` associado às tarefas. Dessa forma:
+A autorização foi implementada ao nível das queries SQL, filtrando sempre pelo `user_id` presente no token:
+
 - um utilizador apenas consegue visualizar as suas tarefas
 - um utilizador apenas consegue editar as suas tarefas
 - um utilizador apenas consegue apagar as suas tarefas
+- um utilizador apenas consegue aceder ao seu próprio perfil (`/users/{id}`)
 
-Isto é garantido através de queries SQL que filtram pelo `user_id` presente no token JWT.
+---
 
-# Comparação com OAuth2
-A autenticação implementada neste projeto utiliza JWT simples com autenticação local baseada em email e password.
+# Implementação OAuth2 e Comparação de Flows
 
-Diferentemente do OAuth2, esta solução não utiliza:
-- Authorization Server
-- Refresh Tokens
-- Scopes
-- consentimento de terceiros
-- login federado (Google, Facebook, GitHub)
+A autenticação implementada segue o fluxo **Resource Owner Password Credentials (ROPC)**, no qual a aplicação cliente recolhe as credenciais do utilizador e as troca por um token de acesso. Este fluxo utiliza:
 
-No OAuth2, existem diferentes authorization flows, como:
-- Authorization Code Flow
-- Client Credentials Flow
-- Implicit Flow
-- Device Flow
+- autenticação da aplicação cliente via `client_id` e `client_secret`
+- `grant_type` para identificar o tipo de fluxo
+- `scopes` para indicar as permissões associadas ao token
+- token de acesso JWT com tempo de expiração (`expires_in`)
 
-Esses flows são utilizados principalmente quando aplicações precisam de autenticação delegada entre diferentes serviços ou plataformas externas.
-Neste projeto foi utilizada uma abordagem mais simples baseada em JWT, adequada para APIs REST pequenas e médias, onde  a própria aplicação é responsável pela autenticação dos utilizadores.
+No OAuth2 existem outros flows, cada um adequado a cenários diferentes:
+
+| Flow | Cenário de uso |
+|---|---|
+| Authorization Code | Aplicações web com servidor próprio; login com Google, GitHub, etc. |
+| Client Credentials | Comunicação máquina a máquina, sem utilizador envolvido |
+| Implicit | Aplicações SPA (descontinuado no OAuth 2.1) |
+| Device Flow | Dispositivos sem browser (TV, CLI) |
+| ROPC (este projeto) | Aplicações de confiança em que o cliente e a API são da mesma equipa |
+
+O fluxo ROPC foi escolhido por ser adequado a uma aplicação em que a mesma equipa controla tanto o cliente como a API, dispensando a complexidade de redirecionamentos e de um Authorization Server externo.
+
+---
 
 # Docker
 
-A aplicação utiliza uma arquitetura multi-container:
+A aplicação utiliza uma arquitetura multi-container com dois containers:
 
-- container Node.js
-- container MySQL
+- **app** — Node.js (construído a partir do `Dockerfile`)
+- **db** — MySQL 5.7 (imagem oficial)
 
-# Execução com Docker 
+O MySQL inclui um `healthcheck` que garante que o container Node só arranca depois da base de dados estar pronta.
 
-Para iniciar os containers:
+## Execução
 
 ```bash
 docker-compose up --build
 ```
-### A API ficará disponível em:
-```text
-http://localhost:3000
-```
-### Swagger:
-```bash
-http://localhost:3000/api-docs
-```
-### Swagger JSON
-```text
-http://localhost:3000/swagger.json
-```
-#  Endpoints
 
-## Endpoints
-| Método | Endpoint | Descrição |
-|---|---|---|
-| POST | /login | Login |
-| GET | /tasks | Listar tarefas |
-| POST | /tasks | Criar tarefa |
-| PUT | /tasks/:id | Atualizar tarefa |
-| DELETE | /tasks/:id | Apagar tarefa |
-| GET | /categories | Listar categorias |
+Para recriar a base de dados do zero (necessário após alterações ao `init.sql`):
+
+```bash
+docker-compose down -v
+docker-compose up --build
+```
+
+### URLs disponíveis
+
+| Recurso | URL |
+|---|---|
+| API | http://localhost:3000 |
+| Swagger UI | http://localhost:3000/api-docs |
+| Swagger JSON | http://localhost:3000/swagger.json |
+
+---
+
+# Endpoints
+
+| Método | Endpoint | Descrição | Autenticação |
+|---|---|---|---|
+| POST | /register | Registar novo utilizador | Pública |
+| POST | /oauth/token | Obter token de acesso (OAuth2) | Pública |
+| GET | /users/me | Obter perfil do utilizador autenticado | Bearer Token |
+| GET | /users/{id} | Obter utilizador com as suas tarefas (1:N) | Bearer Token |
+| PUT | /users/{id} | Atualizar utilizador (só o próprio) | Bearer Token |
+| DELETE | /users/{id} | Apagar utilizador (só o próprio) | Bearer Token |
+| GET | /users/{id}/tasks | Listar tarefas com categorias (1:N) | Bearer Token |
+| GET | /tasks | Listar tarefas do utilizador | Bearer Token |
+| POST | /tasks | Criar tarefa | Bearer Token |
+| PUT | /tasks/{id} | Atualizar tarefa | Bearer Token |
+| DELETE | /tasks/{id} | Apagar tarefa | Bearer Token |
+| GET | /categories | Listar categorias | Bearer Token |
+| POST | /categories | Criar categoria | Bearer Token |
+| GET | /categories/{id} | Obter categoria por ID | Bearer Token |
+| PUT | /categories/{id} | Atualizar categoria | Bearer Token |
+| DELETE | /categories/{id} | Apagar categoria | Bearer Token |
+
+---
 
 # Segurança
 
 A aplicação implementa:
 
-- autenticação JWT
-- middleware de autorização
-- proteção de rotas privadas
-- isolamento de tarefas por utilizador
-- utilização de variáveis de ambiente com dotenv
-- verificação de token Bearer
+- autenticação OAuth2 com tokens de acesso JWT
+- middleware de autorização em todas as rotas privadas
+- hash de passwords com bcrypt
+- isolamento de recursos por `user_id` (tarefas e perfil)
+- variáveis de ambiente com dotenv
+- verificação de token Bearer (existência, assinatura e expiração)
 
-Além disso, o detalhe do utilizador autenticado é apresentado na consola sempre que um pedido autenticado é recebido:
+O detalhe do utilizador autenticado é apresentado na consola a cada pedido recebido:
 
-```text
-Acesso autorizado: Igor Silva (ID: 1)
+```
+--- [PEDIDO RECEBIDO] ---
+Rota acessada: GET /tasks
+Utilizador Autenticado: Igor Silva (ID: 1)
+Aplicação Cliente via OAuth2: task-manager-app
+Escopos autorizados no Token: read write
+-------------------------
 ```
 
-# Documentação da API 
-
-A documentação da API foi implementada utilizando Swagger/OpenAPI 3.0.
-
-As anotações `@openapi` foram inseridas diretamente nos controllers da aplicação, permitindo gerar automaticamente:
-
-- documentação Swagger UI
-- ficheiro `swagger.json`
 ---
+
+# Documentação da API
+
+A documentação foi implementada com Swagger / OpenAPI 3.0 de duas formas complementares:
+
+- **Swagger UI** — gerado automaticamente a partir das anotações `@openapi` nos controllers, disponível em `/api-docs`
+- **openapi.yaml** — ficheiro estático em `api/openapi.yaml`, para entrega e importação no Postman
 
 # Collection Postman
 
@@ -193,17 +267,32 @@ O projeto inclui uma collection do Postman para facilitar os testes da API.
 
 A collection permite testar:
 
-- login
-- autenticação JWT
+- obtenção do token de acesso (OAuth2)
+- autenticação com token Bearer
 - CRUD de tarefas
 - consulta de categorias
 
-A collection pode ser importada diretamente no Postman.
+
+## Para importar no Postman
+
+1. Abre o Postman
+2. Clica em **Import**
+3. Seleciona o ficheiro `api/openapi.yaml` ou introduz o URL `http://localhost:3000/swagger.json`
+4. O Postman gera automaticamente a collection com todos os endpoints
+
+---
+
+# Utilização de Ferramentas de IA
+
+Durante o desenvolvimento deste projeto foram utilizadas ferramentas de Inteligência Artificial como apoio em partes específicas, nomeadamente:
+
+- na abordagem Code First da API, como auxílio na estruturação inicial do código e das rotas
+- na criação da base de dados, designadamente na geração do script `init.sql` e dos dados de teste
+
+As restantes componentes do projeto foram desenvolvidas e validadas por mim, recorrendo à IA apenas como apoio complementar sempre que necessário.
 
 ---
 
 # Conclusão
-Este projeto permitiu desenvolver uma API REST completa utilizando Node.js, Express e MySQL, aplicando conceitos de autenticação, autorização e documentação de APIs.
-Foram implementadas operações CRUD protegidas através de JWT, garantindo que cada utilizador apenas consegue aceder aos seus próprios recursos.
 
-
+Este projeto permitiu desenvolver uma API REST completa utilizando Node.js, Express e MySQL, aplicando conceitos de autenticação OAuth2, autorização por utilizador, JWT e documentação de APIs com OpenAPI 3.0. Foram implementadas operações CRUD protegidas por tokens Bearer, garantindo que cada utilizador apenas consegue aceder e modificar os seus próprios recursos.
