@@ -12,8 +12,8 @@ const bcrypt = require('bcryptjs');
  *     responses:
  *       200:
  *         description: Dados do utilizador autenticado
- *      404:
- *        description: Utilizador não encontrado
+ *       404:
+ *         description: Utilizador não encontrado
  */
 exports.getMe = (req, res) => {
     db.query('SELECT id, name, email FROM users WHERE id = ?', [req.user.id], (err, results) => {
