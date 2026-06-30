@@ -1,0 +1,8 @@
+FROM mysql:5.7
+
+ENV MYSQL_DATABASE=task_db
+ENV MYSQL_ROOT_PASSWORD=root_password
+
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
+
+EXPOSE 3306
